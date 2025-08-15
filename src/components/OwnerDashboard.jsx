@@ -1,0 +1,46 @@
+import React from 'react';
+import { Link } from 'react-router-dom'; // Import Link
+import AddMemberForm from './AddMemberForm';
+import MemberList from './MemberList';
+import AddClassForm from './AddClassForm';
+import ClassList from './ClassList';
+import JoinRequestsList from './JoinRequestsList';
+
+const OwnerDashboard = ({ gymData }) => {
+  return (
+    <div className="space-y-8 mt-8">
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-2 text-gray-800">Managing: {gymData.gymName}</h2>
+        <p className="text-slate-600">{gymData.address}</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column: Member & Request Management */}
+        <div className="space-y-8">
+          <JoinRequestsList gymId={gymData.id} />
+          <AddMemberForm gymId={gymData.id} />
+          <MemberList gymId={gymData.id} />
+        </div>
+
+        {/* Right Column: Class & Attendance Management */}
+        <div className="space-y-8">
+          {/* This is the new Attendance Management section */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">Attendance Management</h3>
+            <p className="text-gray-600 mb-4">View and manage monthly attendance for all your members.</p>
+            <Link
+              to={`/gym/${gymData.id}/attendance`}
+              className="w-full block text-center bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition"
+            >
+              Open Attendance Grid
+            </Link>
+          </div>
+          <AddClassForm gymId={gymData.id} />
+          <ClassList gymId={gymData.id} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default OwnerDashboard;
