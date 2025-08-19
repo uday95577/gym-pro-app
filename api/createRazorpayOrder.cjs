@@ -3,7 +3,8 @@
 
 const Razorpay = require('razorpay');
 
-export default async function handler(req, res) {
+// Use module.exports for CommonJS modules (.cjs files)
+module.exports = async (req, res) => {
   // We only accept POST requests for security
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
@@ -32,4 +33,4 @@ export default async function handler(req, res) {
     console.error("Razorpay order creation failed:", error);
     res.status(500).json({ error: 'Could not create a payment order.' });
   }
-}
+};
