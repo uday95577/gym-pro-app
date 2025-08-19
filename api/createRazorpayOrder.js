@@ -1,10 +1,9 @@
 // This is a Vercel Serverless Function.
-// It runs in a secure Node.js environment.
+// We are now using modern ES Module syntax (import/export).
 
-const Razorpay = require('razorpay');
+import Razorpay from 'razorpay';
 
-// Use module.exports for CommonJS modules (.cjs files)
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // We only accept POST requests for security
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
@@ -33,4 +32,4 @@ module.exports = async (req, res) => {
     console.error("Razorpay order creation failed:", error);
     res.status(500).json({ error: 'Could not create a payment order.' });
   }
-};
+}
