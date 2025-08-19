@@ -1,29 +1,32 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import pluginReactConfig from "eslint-plugin-react/configs/recommended.js";
 
-export default defineConfig([
-  globalIgnores(['dist']),
+export default [
   {
-    files: ['**/*.{js,jsx}'],
-    extends: [
-      js.configs.recommended,
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-    ],
+    // This section applies to your entire project
     languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-      parserOptions: {
-        ecmaVersion: 'latest',
-        ecmaFeatures: { jsx: true },
-        sourceType: 'module',
-      },
+      globals: { ...globals.browser, ...globals.node }, // Allow both browser and node globals
+      ecmaVersion: "latest",
+      sourceType: "module",
+    },
+    plugins: {
+      react: pluginReactConfig,
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      "react/react-in-jsx-scope": "off", // Not needed with modern React/Vite
+      "react/prop-types": "off", // Disable prop-types for this project
     },
   },
-])
+  {
+    // --- THIS IS THE NEW, IMPORTANT PART ---
+    // This section applies ONLY to files inside the 'api' folder
+    files: ["api/**/*.js"],
+    languageOptions: {
+      globals: {
+        ...globals.node, // Use ONLY Node.js globals for the API
+      },
+      sourceType: "commonjs", // Specify that API files use require/module.exports
+    },
+  },
+];
