@@ -10,23 +10,23 @@ const model = genAI.getGenerativeModel({
 });
 
 /**
- * Generates a 7-day workout plan using the Gemini API based on user preferences.
+ * Generates a 7-day workout plan using the Gemini API based on user preferences and BMI.
  * @param {object} preferences - The user's preferences for the workout plan.
- * @param {string} preferences.motive - The user's primary goal (e.g., 'fat loss').
- * @param {string} preferences.level - The user's experience level (e.g., 'beginner').
- * @param {string} preferences.suggestions - Any specific user requests.
  * @returns {Promise<string>} A formatted string containing the workout plan.
  */
-export const generateWorkoutPlan = async ({ motive, level, suggestions }) => {
+export const generateWorkoutPlan = async ({ motive, level, suggestions, latestBmi }) => {
   const prompt = `
-    Create a 7-day weekly workout plan, explicitly including 2 rest days, with the following user preferences:
+    Create a 7-day weekly workout plan, including 2 rest days, for a user with the following profile:
     - Primary Goal: ${motive}
     - Experience Level: ${level}
+    - Current Height: ${latestBmi?.height || 'Not provided'} cm
+    - Current Weight: ${latestBmi?.weight || 'Not provided'} kg
+    - Current BMI: ${latestBmi?.bmi || 'Not provided'}
     - Specific Requests: "${suggestions || 'None'}"
 
-    The plan should be structured with clear headings for each day (e.g., Day 1, Day 2, Rest Day).
-    For each exercise on workout days, specify the name, number of sets, and number of reps, appropriate for the user's level.
-    If the user requested a specific split like "per day one body part only", adhere to that.
+    Tailor the intensity and types of exercises based on their current stats and goals.
+    The plan should be structured with clear headings for each day.
+    For each exercise, specify the name, number of sets, and number of reps.
     Provide a brief note about a warm-up.
     Format the response clearly using markdown. Use '#' for the main title, '##' for day titles, and '*' for list items.
   `;
@@ -44,23 +44,21 @@ export const generateWorkoutPlan = async ({ motive, level, suggestions }) => {
 /**
  * Generates a 7-day diet plan using the Gemini API based on user preferences.
  * @param {object} preferences - The user's preferences for the diet plan.
- * @param {string} preferences.motive - The user's goal (e.g., 'weight loss', 'muscle gain').
- * @param {string} preferences.mealType - The user's meal preference (e.g., 'vegetarian', 'non-vegetarian').
- * @param {string} preferences.budget - The user's budget (e.g., 'low', 'medium', 'high').
  * @returns {Promise<string>} A formatted string containing the diet plan.
  */
-export const generateDietPlan = async ({ motive, mealType, budget }) => {
+export const generateDietPlan = async ({ motive, mealType, budget, suggestions }) => {
   const prompt = `
     Create a sample 7-day diet plan for an active person with the following preferences:
     - Primary Goal: ${motive}
     - Meal Preference: ${mealType}
     - Budget: ${budget}
+    - Specific Requests: "${suggestions || 'None'}"
 
-    The plan should be balanced and include three main meals (Breakfast, Lunch, Dinner) and two snacks for each day.
-    For each meal, suggest 2-3 food item options that fit the specified budget and meal type.
-    Provide estimated macronutrient goals (Protein, Carbs, Fats) for the week.
-    Include a note about the importance of hydration.
-    Format the response clearly using markdown. Use '#' for the main title, '##' for day titles (e.g., ## Day 1: Monday), '###' for meal times, and '*' for food items.
+    The plan should be balanced and include three main meals and two snacks for each day.
+    For each meal, suggest food items that fit the preferences.
+    Provide estimated macronutrient goals for the week.
+    Include a note about hydration.
+    Format the response clearly using markdown. Use '#' for the main title, '##' for day titles, '###' for meal times, and '*' for food items.
   `;
 
   try {
