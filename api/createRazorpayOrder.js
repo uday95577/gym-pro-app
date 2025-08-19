@@ -9,7 +9,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { amount, currency } = req.body;
+  // We now expect more details from the frontend
+  const { amount, currency, planName, userId } = req.body;
+
+  if (!amount || !currency || !planName || !userId) {
+    return res.status(400).json({ error: 'Missing required payment details.' });
+  }
 
   // Initialize Razorpay using the secret keys stored securely in Vercel
   const razorpay = new Razorpay({
@@ -22,6 +27,11 @@ export default async function handler(req, res) {
     currency: currency,
     receipt: `receipt_order_${Date.now()}`,
     payment_capture: 1,
+    // Add notes for better tracking in the Razorpay dashboard
+    notes: {
+      userId: userId,
+      planName: planName,
+    }
   };
 
   try {
