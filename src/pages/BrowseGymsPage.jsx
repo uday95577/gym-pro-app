@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import { Link } from 'react-router-dom';
 
 const BrowseGymsPage = () => {
   const [gyms, setGyms] = useState([]);
@@ -28,32 +28,39 @@ const BrowseGymsPage = () => {
     };
 
     fetchGyms();
-  }, []); // Empty dependency array means this runs once on component mount
+  }, []);
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-slate-800 mb-6">Browse Gyms</h1>
+      <h1 className="text-3xl font-bold text-slate-100 mb-6">Browse Gyms</h1>
       {loading ? (
-        <p>Finding gyms near you...</p>
+        <p className="text-slate-300">Finding gyms near you...</p>
       ) : gyms.length === 0 ? (
-        <p>No gyms have registered on the platform yet.</p>
+        <p className="text-slate-300">No gyms have registered on the platform yet.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gyms.map((gym) => (
-            <div key={gym.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow flex flex-col">
-              <div className="flex-grow">
-                <h2 className="text-xl font-bold text-slate-900">{gym.gymName}</h2>
-                <p className="text-slate-600 mt-2">{gym.address}</p>
+          {gyms.map((gym) => {
+            // Use the first image in the array, or a placeholder if it doesn't exist
+            const imageUrl = gym.images && gym.images.length > 0 
+              ? gym.images[0] 
+              : 'https://placehold.co/600x400/2d3748/ffffff?text=No+Image';
+
+            return (
+              <div key={gym.id} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transform hover:-translate-y-1 transition-transform duration-300">
+                <img src={imageUrl} alt={gym.gymName} className="w-full h-48 object-cover" />
+                <div className="p-6 flex flex-col flex-grow">
+                  <h2 className="text-xl font-bold text-slate-900">{gym.gymName}</h2>
+                  <p className="text-slate-600 mt-2 flex-grow">{gym.address}</p>
+                  <Link
+                    to={`/gym/${gym.id}`}
+                    className="mt-4 block w-full text-center bg-sky-500 text-white py-2 rounded-md hover:bg-sky-600 transition"
+                  >
+                    View Details & Join
+                  </Link>
+                </div>
               </div>
-              {/* This Link navigates to the dynamic gym detail page */}
-              <Link
-                to={`/gym/${gym.id}`}
-                className="mt-4 block w-full text-center bg-sky-500 text-white py-2 rounded-md hover:bg-sky-600 transition"
-              >
-                View Details & Join
-              </Link>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
