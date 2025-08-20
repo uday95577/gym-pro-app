@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../firebase';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import ImageGallery from './ImageGallery'; // Import the new gallery component
 
 const ImageUploader = ({ gymId }) => {
   const [file, setFile] = useState(null);
@@ -12,7 +13,6 @@ const ImageUploader = ({ gymId }) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
-      // Create a preview URL for the selected image
       setPreview(URL.createObjectURL(selectedFile));
     }
   };
@@ -26,7 +26,6 @@ const ImageUploader = ({ gymId }) => {
     formData.append('image', file);
 
     try {
-      // Call our secure Vercel backend function
       const response = await fetch('/api/uploadImage', {
         method: 'POST',
         body: formData,
@@ -39,13 +38,11 @@ const ImageUploader = ({ gymId }) => {
       const data = await response.json();
       const imageUrl = data.secure_url;
 
-      // Save the new image URL to the gym's document in Firestore
       const gymDocRef = doc(db, 'gyms', gymId);
       await updateDoc(gymDocRef, {
-        images: arrayUnion(imageUrl) // Add the new URL to an 'images' array
+        images: arrayUnion(imageUrl)
       });
 
-      // Reset the state
       setFile(null);
       setPreview('');
 
@@ -59,7 +56,7 @@ const ImageUploader = ({ gymId }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-semibold mb-4 text-gray-800">Upload Gym Photos</h3>
+      <h3 className="text-xl font-semibold mb-4 text-gray-800">Manage Gym Photos</h3>
       <div className="space-y-4">
         <input
           type="file"
@@ -81,6 +78,9 @@ const ImageUploader = ({ gymId }) => {
         </button>
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
       </div>
+      
+      {/* Add the ImageGallery component here */}
+      <ImageGallery gymId={gymId} />
     </div>
   );
 };
