@@ -1,31 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
 import ClassList from '../components/ClassList';
 
 const GymDetailPage = () => {
   const { gymId } = useParams();
+  const { currentUser } = useAuth();
   const [gym, setGym] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [requestStatus, setRequestStatus] = useState(null); // 'sent', 'member', null
+
+  const handleJoinRequest = async (plan) => {
+    if (!currentUser) return alert('Please log in to join a gym.');
+    
+    setRequestStatus('sending');
+    try {
+      const joinRequestRef = collection(db, 'gyms', gymId, 'joinRequests');
+      await addDoc(joinRequestRef, {
+        userId: currentUser.uid,
+        userName: currentUser.name || currentUser.email,
+        userEmail: currentUser.email,
+        status: 'pending',
+        requestDate: serverTimestamp(),
+        planDuration: plan.duration,
+        planPrice: plan.price,
+      });
+      setRequestStatus('sent');
+      alert(`Your request to join with the ${plan.duration} plan has been sent!`);
+    } catch (error)
+    {
+      console.error("Error sending join request: ", error);
+      setRequestStatus(null);
+    }
+  };
 
   useEffect(() => {
-    const fetchGym = async () => {
-      if (!gymId) return;
+    const fetchGymAndStatus = async () => {
+      if (!gymId || !currentUser) return;
       setLoading(true);
       try {
+        // Fetch gym details
         const gymDocRef = doc(db, 'gyms', gymId);
         const gymDoc = await getDoc(gymDocRef);
         if (gymDoc.exists()) {
           setGym({ ...gymDoc.data(), id: gymDoc.id });
+        }
+
+        // Check if user has already sent a request
+        const q = query(
+          collection(db, 'gyms', gymId, 'joinRequests'),
+          where('userId', '==', currentUser.uid)
+        );
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          setRequestStatus('sent');
         }
       } catch (error) {
         console.error("Error fetching gym details: ", error);
       }
       setLoading(false);
     };
-    fetchGym();
-  }, [gymId]);
+    fetchGymAndStatus();
+  }, [gymId, currentUser]);
 
   if (loading) {
     return <p className="text-slate-300">Loading gym details...</p>;
@@ -35,7 +73,6 @@ const GymDetailPage = () => {
     return <p className="text-slate-300">Gym not found.</p>;
   }
 
-  // Prepare fee plans for display, filtering out any that haven't been set
   const feePlans = gym.fees ? [
     { duration: '1 Month', price: gym.fees.monthly },
     { duration: '3 Months', price: gym.fees.quarterly },
@@ -50,7 +87,6 @@ const GymDetailPage = () => {
         <p className="text-lg text-slate-600 mt-2">{gym.address}</p>
       </div>
 
-      {/* New Membership Plans Section */}
       {feePlans.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Membership Plans</h2>
@@ -59,8 +95,12 @@ const GymDetailPage = () => {
               <div key={plan.duration} className="border border-gray-200 rounded-lg p-4 text-center hover:shadow-lg transition-shadow flex flex-col">
                 <h3 className="font-semibold text-gray-700">{plan.duration}</h3>
                 <p className="text-3xl font-bold text-sky-600 my-2">₹{plan.price}</p>
-                <button className="mt-auto w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition">
-                  Request to Join
+                <button
+                  onClick={() => handleJoinRequest(plan)}
+                  disabled={!!requestStatus}
+                  className="mt-auto w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {requestStatus === 'sent' ? 'Request Sent' : 'Request to Join'}
                 </button>
               </div>
             ))}
@@ -68,7 +108,6 @@ const GymDetailPage = () => {
         </div>
       )}
 
-      {/* Image Gallery Section */}
       {gym.images && gym.images.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Gallery</h2>
