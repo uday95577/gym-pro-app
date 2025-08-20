@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 const Hard75Page = () => {
   const { currentUser } = useAuth();
   const [challenge, setChallenge] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // The 7 daily tasks for the challenge
+  const tasks = [
+    { id: 'workout1', label: '45-minute workout' },
+    { id: 'workout2', label: '45-minute outdoor workout' },
+    { id: 'diet', label: 'Follow a diet' },
+    { id: 'noAlcohol', label: 'No alcohol or cheat meals' },
+    { id: 'progressPhoto', label: 'Take a progress photo' },
+    { id: 'water', label: 'Drink 1 gallon of water' },
+    { id: 'read', label: 'Read 10 pages of a book' },
+  ];
 
   // Fetch the user's challenge data
   useEffect(() => {
@@ -33,56 +44,47 @@ const Hard75Page = () => {
       isActive: true,
       startDate: startDate,
       progress: {}, // An object to store daily progress
-      currentDay: 1,
       lastCompletedDay: 0,
     };
     await setDoc(challengeDocRef, newChallenge);
     setChallenge(newChallenge);
   };
 
+  const handleRestart = async () => {
+    if (window.confirm("Are you sure you want to restart the challenge? All your current progress will be lost.")) {
+      if (!currentUser) return;
+      const challengeDocRef = doc(db, 'users', currentUser.uid, '75hard', 'challengeData');
+      await deleteDoc(challengeDocRef);
+      setChallenge(null); // This will cause the UI to show the "Start Challenge" screen
+    }
+  };
+
   const handleTaskToggle = async (day, task) => {
     if (!challenge) return;
     const challengeDocRef = doc(db, 'users', currentUser.uid, '75hard', 'challengeData');
     
-    // Create a deep copy to avoid direct state mutation
     const newProgress = JSON.parse(JSON.stringify(challenge.progress));
     
-    // Initialize the day if it doesn't exist
     if (!newProgress[day]) {
       newProgress[day] = {};
     }
     
-    // Toggle the task status
     newProgress[day][task] = !newProgress[day][task];
 
-    // Check if all tasks for the day are complete
     const allTasksComplete = tasks.every(t => newProgress[day][t.id]);
     
     let updateData = {
       progress: newProgress,
-      lastCompletedDay: allTasksComplete && day > challenge.lastCompletedDay ? day : challenge.lastCompletedDay,
+      lastCompletedDay: allTasksComplete && day > (challenge.lastCompletedDay || 0) ? day : challenge.lastCompletedDay,
     };
 
     await updateDoc(challengeDocRef, updateData);
     setChallenge(prev => ({...prev, ...updateData}));
   };
 
-  // The 7 daily tasks for the challenge
-  const tasks = [
-    { id: 'workout1', label: '45-minute workout' },
-    { id: 'workout2', label: '45-minute outdoor workout' },
-    { id: 'diet', label: 'Follow a diet' },
-    { id: 'noAlcohol', label: 'No alcohol or cheat meals' },
-    { id: 'progressPhoto', label: 'Take a progress photo' },
-    { id: 'water', label: 'Drink 1 gallon of water' },
-    { id: 'read', label: 'Read 10 pages of a book' },
-  ];
-
   if (loading) {
     return <p className="text-center text-slate-300">Loading Challenge...</p>;
   }
-
-  // --- RENDER LOGIC ---
 
   // View for users who have NOT started the challenge
   if (!challenge || !challenge.isActive) {
@@ -109,27 +111,34 @@ const Hard75Page = () => {
   }
 
   // View for users with an ACTIVE challenge
-  // FIX: Handle both Firestore Timestamps and local Date objects
   const startDate = challenge.startDate.toDate ? challenge.startDate.toDate() : challenge.startDate;
   const currentDay = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24)) + 1;
-  const progressPercentage = Math.floor((challenge.lastCompletedDay / 75) * 100);
+  const progressPercentage = Math.floor(((challenge.lastCompletedDay || 0) / 75) * 100);
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-slate-100 mb-2">75 Hard Challenge: Day {currentDay}</h1>
-      <p className="text-slate-300 mb-6">You've got this. Stick to the plan.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-100 mb-2">75 Hard Challenge: Day {currentDay}</h1>
+          <p className="text-slate-300">You've got this. Stick to the plan.</p>
+        </div>
+        <button
+          onClick={handleRestart}
+          className="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-700 transition self-start sm:self-center"
+        >
+          Restart Challenge
+        </button>
+      </div>
 
-      {/* Progress Bar */}
       <div className="bg-white rounded-full shadow-md p-1 mb-8">
         <div 
-          className="bg-sky-500 text-xs font-medium text-blue-100 text-center p-1 leading-none rounded-full" 
+          className="bg-sky-500 text-xs font-medium text-blue-100 text-center p-1 leading-none rounded-full transition-all duration-500" 
           style={{ width: `${progressPercentage}%` }}
         >
           {progressPercentage > 0 ? `${progressPercentage}% Complete` : ''}
         </div>
       </div>
 
-      {/* Daily Task Checklist */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4 text-gray-800">Today's Tasks (Day {currentDay})</h2>
         <div className="space-y-4">

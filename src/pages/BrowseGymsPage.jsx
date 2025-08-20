@@ -4,9 +4,12 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 
 const BrowseGymsPage = () => {
-  const [gyms, setGyms] = useState([]);
+  const [allGyms, setAllGyms] = useState([]); // Stores the original list of all gyms
+  const [filteredGyms, setFilteredGyms] = useState([]); // Stores the gyms to be displayed
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Fetch all gyms once when the component loads
   useEffect(() => {
     const fetchGyms = async () => {
       setLoading(true);
@@ -20,7 +23,8 @@ const BrowseGymsPage = () => {
           gymsData.push({ ...doc.data(), id: doc.id });
         });
 
-        setGyms(gymsData);
+        setAllGyms(gymsData);
+        setFilteredGyms(gymsData); // Initially, show all gyms
       } catch (error) {
         console.error("Error fetching gyms: ", error);
       }
@@ -30,17 +34,37 @@ const BrowseGymsPage = () => {
     fetchGyms();
   }, []);
 
+  // Filter gyms whenever the search term changes
+  useEffect(() => {
+    const results = allGyms.filter(gym =>
+      gym.gymName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      gym.address.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredGyms(results);
+  }, [searchTerm, allGyms]);
+
   return (
     <div>
-      <h1 className="text-3xl font-bold text-slate-100 mb-6">Browse Gyms</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-slate-100">Browse Gyms</h1>
+        <div className="mt-4">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by gym name or address..."
+            className="w-full max-w-lg p-3 rounded-lg border border-gray-300 text-gray-800"
+          />
+        </div>
+      </div>
+      
       {loading ? (
-        <p className="text-slate-300">Finding gyms near you...</p>
-      ) : gyms.length === 0 ? (
-        <p className="text-slate-300">No gyms have registered on the platform yet.</p>
+        <p className="text-slate-300">Finding gyms...</p>
+      ) : filteredGyms.length === 0 ? (
+        <p className="text-slate-300">No gyms found matching your search.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gyms.map((gym) => {
-            // Use the first image in the array, or a placeholder if it doesn't exist
+          {filteredGyms.map((gym) => {
             const imageUrl = gym.images && gym.images.length > 0 
               ? gym.images[0] 
               : 'https://placehold.co/600x400/2d3748/ffffff?text=No+Image';
