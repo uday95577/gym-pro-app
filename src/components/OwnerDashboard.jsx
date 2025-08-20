@@ -1,10 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link
+import { Link } from 'react-router-dom';
 import AddMemberForm from './AddMemberForm';
 import MemberList from './MemberList';
 import AddClassForm from './AddClassForm';
 import ClassList from './ClassList';
 import JoinRequestsList from './JoinRequestsList';
+import ImageUploader from './ImageUploader'; // Import the new component
 
 const OwnerDashboard = ({ gymData }) => {
   return (
@@ -15,16 +16,17 @@ const OwnerDashboard = ({ gymData }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column: Member & Request Management */}
+        {/* Left Column */}
         <div className="space-y-8">
           <JoinRequestsList gymId={gymData.id} />
           <AddMemberForm gymId={gymData.id} />
           <MemberList gymId={gymData.id} />
         </div>
 
-        {/* Right Column: Class & Attendance Management */}
+        {/* Right Column */}
         <div className="space-y-8">
-          {/* This is the new Attendance Management section */}
+          {/* Add the new ImageUploader component here */}
+          <ImageUploader gymId={gymData.id} />
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-4 text-gray-800">Attendance Management</h3>
             <p className="text-gray-600 mb-4">View and manage monthly attendance for all your members.</p>
