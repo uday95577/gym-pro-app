@@ -5,6 +5,8 @@ import { collection, addDoc, query, where, onSnapshot, orderBy, serverTimestamp,
 import { generateWorkoutPlan, generateDietPlan } from '../aiService';
 import BMITracker from '../components/BMITracker';
 import AiPlanDisplay from '../components/AiPlanDisplay';
+import SubscriptionGate from '../components/SubscriptionGate'; // Import the subscription gate
+import TrialBanner from '../components/TrialBanner'; // Import the trial banner
 
 const ProgressPage = () => {
   const { currentUser } = useAuth();
@@ -26,7 +28,7 @@ const ProgressPage = () => {
     motive: 'general fitness',
     mealType: 'vegetarian',
     budget: 'medium',
-    suggestions: '', // New field for suggestions
+    suggestions: '',
   });
 
   // State for workout plan preferences
@@ -62,7 +64,7 @@ const ProgressPage = () => {
 
   const handleGenerateWorkout = async () => {
     setIsGeneratingWorkout(true); setWorkoutPlan('');
-    const plan = await generateWorkoutPlan({ ...workoutPrefs, latestBmi }); // Pass BMI data
+    const plan = await generateWorkoutPlan({ ...workoutPrefs, latestBmi });
     setWorkoutPlan(plan); setIsGeneratingWorkout(false);
   };
 
@@ -88,108 +90,115 @@ const ProgressPage = () => {
     <div className="space-y-8">
       <h1 className="text-3xl font-bold text-slate-100">Your Fitness Hub</h1>
       
-      <BMITracker />
+      {/* Add the Trial Banner here */}
+      <TrialBanner />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-start">
-        <div className="bg-white p-6 rounded-lg shadow-md flex flex-col space-y-4">
-          <div>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">AI Nutritionist</h2>
-            <p className="mb-4 text-slate-600 text-sm">Get a personalized weekly diet plan.</p>
-          </div>
-          
-          <div className="space-y-3">
-            <select value={dietPrefs.motive} onChange={(e) => setDietPrefs({...dietPrefs, motive: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
-              <option value="weight loss">Goal: Weight Loss</option>
-              <option value="muscle gain">Goal: Muscle Gain</option>
-              <option value="general fitness">Goal: General Fitness</option>
-            </select>
-            <select value={dietPrefs.mealType} onChange={(e) => setDietPrefs({...dietPrefs, mealType: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
-              <option value="vegetarian">Vegetarian</option>
-              <option value="non-vegetarian">Non-Vegetarian</option>
-              <option value="vegan">Vegan</option>
-            </select>
-            <select value={dietPrefs.budget} onChange={(e) => setDietPrefs({...dietPrefs, budget: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
-              <option value="low">Budget: Low</option>
-              <option value="medium">Budget: Medium</option>
-              <option value="high">Budget: High</option>
-            </select>
-            {/* New Suggestion Box */}
-            <textarea
-              value={dietPrefs.suggestions}
-              onChange={(e) => setDietPrefs({...dietPrefs, suggestions: e.target.value})}
-              placeholder="Specific requests (e.g., 'no dairy', 'add more protein shakes')"
-              className="w-full p-2 border border-gray-300 rounded-md text-gray-800"
-              rows="2"
-            />
-          </div>
+      {/* Wrap all features in the SubscriptionGate */}
+      <SubscriptionGate>
+        <div className="space-y-8">
+          <BMITracker />
 
-          <button onClick={handleGenerateDiet} disabled={isGeneratingDiet}
-            className="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition disabled:bg-teal-300">
-            {isGeneratingDiet ? 'Generating...' : 'Generate Diet Plan'}
-          </button>
-          
-          {dietPlan && <AiPlanDisplay planText={dietPlan} />}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-start">
+            <div className="bg-white p-6 rounded-lg shadow-md flex flex-col space-y-4">
+              <div>
+                <h2 className="text-xl font-semibold mb-2 text-gray-800">AI Nutritionist</h2>
+                <p className="mb-4 text-slate-600 text-sm">Get a personalized weekly diet plan.</p>
+              </div>
+              
+              <div className="space-y-3">
+                <select value={dietPrefs.motive} onChange={(e) => setDietPrefs({...dietPrefs, motive: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
+                  <option value="weight loss">Goal: Weight Loss</option>
+                  <option value="muscle gain">Goal: Muscle Gain</option>
+                  <option value="general fitness">Goal: General Fitness</option>
+                </select>
+                <select value={dietPrefs.mealType} onChange={(e) => setDietPrefs({...dietPrefs, mealType: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
+                  <option value="vegetarian">Vegetarian</option>
+                  <option value="non-vegetarian">Non-Vegetarian</option>
+                  <option value="vegan">Vegan</option>
+                </select>
+                <select value={dietPrefs.budget} onChange={(e) => setDietPrefs({...dietPrefs, budget: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
+                  <option value="low">Budget: Low</option>
+                  <option value="medium">Budget: Medium</option>
+                  <option value="high">Budget: High</option>
+                </select>
+                <textarea
+                  value={dietPrefs.suggestions}
+                  onChange={(e) => setDietPrefs({...dietPrefs, suggestions: e.target.value})}
+                  placeholder="Specific requests (e.g., 'no dairy', 'add more protein shakes')"
+                  className="w-full p-2 border border-gray-300 rounded-md text-gray-800"
+                  rows="2"
+                />
+              </div>
+
+              <button onClick={handleGenerateDiet} disabled={isGeneratingDiet}
+                className="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition disabled:bg-teal-300">
+                {isGeneratingDiet ? 'Generating...' : 'Generate Diet Plan'}
+              </button>
+              
+              {dietPlan && <AiPlanDisplay planText={dietPlan} />}
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-md flex flex-col space-y-4">
+              <div>
+                <h2 className="text-xl font-semibold mb-2 text-gray-800">AI Workout Coach</h2>
+                <p className="mb-4 text-slate-600 text-sm">Get a structured weekly workout plan.</p>
+              </div>
+              
+              <div className="space-y-3">
+                <select value={workoutPrefs.motive} onChange={(e) => setWorkoutPrefs({...workoutPrefs, motive: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
+                  <option value="fat loss">Goal: Fat Loss</option>
+                  <option value="muscle gain">Goal: Muscle Gain</option>
+                  <option value="strength">Goal: Strength</option>
+                </select>
+                <select value={workoutPrefs.level} onChange={(e) => setWorkoutPrefs({...workoutPrefs, level: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+                <textarea
+                  value={workoutPrefs.suggestions}
+                  onChange={(e) => setWorkoutPrefs({...workoutPrefs, suggestions: e.target.value})}
+                  placeholder="Specific requests (e.g., 'focus on legs', 'no jumping exercises')"
+                  className="w-full p-2 border border-gray-300 rounded-md text-gray-800"
+                  rows="2"
+                />
+              </div>
+
+              <button onClick={handleGenerateWorkout} disabled={isGeneratingWorkout}
+                className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition disabled:bg-purple-300">
+                {isGeneratingWorkout ? 'Generating...' : 'Generate Workout Plan'}
+              </button>
+              
+              {workoutPlan && <AiPlanDisplay planText={workoutPlan} />}
+            </div>
+          </div>
+        
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Log a New Workout</h2>
+            <form onSubmit={handleWorkoutSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input type="text" value={exercise} onChange={(e) => setExercise(e.target.value)} placeholder="Exercise Name"
+                className="px-3 py-2 border border-gray-300 rounded-md text-gray-900" required />
+              <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="Weight (in kg)"
+                className="px-3 py-2 border border-gray-300 rounded-md text-gray-900" required />
+              <button type="submit" className="bg-sky-500 text-white py-2 rounded-md hover:bg-sky-600 transition">
+                Save Workout
+              </button>
+            </form>
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-2 text-gray-800">Your Workout History</h3>
+              {loadingWorkouts ? <p className="text-gray-600">Loading history...</p> : 
+               workouts.length === 0 ? <p className="text-gray-600">You haven't logged any workouts yet.</p> : (
+                <ul> {workouts.map((w) => (
+                  <li key={w.id} className="border-b last:border-b-0 py-3 flex justify-between items-center">
+                    <div><p className="font-bold text-lg text-gray-800">{w.exercise}</p><p className="text-sm text-gray-500">{w.createdAt ? new Date(w.createdAt.toDate()).toLocaleString() : 'Just now'}</p></div>
+                    <p className="text-xl font-semibold text-sky-600">{w.weight} kg</p>
+                  </li>
+                ))} </ul>
+              )}
+            </div>
+          </div>
         </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-md flex flex-col space-y-4">
-          <div>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">AI Workout Coach</h2>
-            <p className="mb-4 text-slate-600 text-sm">Get a structured weekly workout plan.</p>
-          </div>
-          
-          <div className="space-y-3">
-            <select value={workoutPrefs.motive} onChange={(e) => setWorkoutPrefs({...workoutPrefs, motive: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
-              <option value="fat loss">Goal: Fat Loss</option>
-              <option value="muscle gain">Goal: Muscle Gain</option>
-              <option value="strength">Goal: Strength</option>
-            </select>
-            <select value={workoutPrefs.level} onChange={(e) => setWorkoutPrefs({...workoutPrefs, level: e.target.value})} className="w-full p-2 border border-gray-300 rounded-md text-gray-800">
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
-            </select>
-            <textarea
-              value={workoutPrefs.suggestions}
-              onChange={(e) => setWorkoutPrefs({...workoutPrefs, suggestions: e.target.value})}
-              placeholder="Specific requests (e.g., 'focus on legs', 'no jumping exercises')"
-              className="w-full p-2 border border-gray-300 rounded-md text-gray-800"
-              rows="2"
-            />
-          </div>
-
-          <button onClick={handleGenerateWorkout} disabled={isGeneratingWorkout}
-            className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition disabled:bg-purple-300">
-            {isGeneratingWorkout ? 'Generating...' : 'Generate Workout Plan'}
-          </button>
-          
-          {workoutPlan && <AiPlanDisplay planText={workoutPlan} />}
-        </div>
-      </div>
-    
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800">Log a New Workout</h2>
-        <form onSubmit={handleWorkoutSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input type="text" value={exercise} onChange={(e) => setExercise(e.target.value)} placeholder="Exercise Name"
-            className="px-3 py-2 border border-gray-300 rounded-md text-gray-900" required />
-          <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="Weight (in kg)"
-            className="px-3 py-2 border border-gray-300 rounded-md text-gray-900" required />
-          <button type="submit" className="bg-sky-500 text-white py-2 rounded-md hover:bg-sky-600 transition">
-            Save Workout
-          </button>
-        </form>
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-2 text-gray-800">Your Workout History</h3>
-          {loadingWorkouts ? <p className="text-gray-600">Loading history...</p> : 
-           workouts.length === 0 ? <p className="text-gray-600">You haven't logged any workouts yet.</p> : (
-            <ul> {workouts.map((w) => (
-              <li key={w.id} className="border-b last:border-b-0 py-3 flex justify-between items-center">
-                <div><p className="font-bold text-lg text-gray-800">{w.exercise}</p><p className="text-sm text-gray-500">{w.createdAt ? new Date(w.createdAt.toDate()).toLocaleString() : 'Just now'}</p></div>
-                <p className="text-xl font-semibold text-sky-600">{w.weight} kg</p>
-              </li>
-            ))} </ul>
-          )}
-        </div>
-      </div>
+      </SubscriptionGate>
     </div>
   );
 };

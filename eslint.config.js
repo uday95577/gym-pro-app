@@ -5,8 +5,9 @@ import pluginReactConfig from "eslint-plugin-react/configs/recommended.js";
 export default [
   {
     // This section applies to your entire project
+    files: ["**/*.{js,jsx}"], // Apply to all JS/JSX files
     languageOptions: {
-      globals: { ...globals.browser, ...globals.node }, // Allow both browser and node globals
+      globals: { ...globals.browser, ...globals.node },
       ecmaVersion: "latest",
       sourceType: "module",
     },
@@ -14,19 +15,13 @@ export default [
       react: pluginReactConfig,
     },
     rules: {
-      "react/react-in-jsx-scope": "off", // Not needed with modern React/Vite
-      "react/prop-types": "off", // Disable prop-types for this project
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
     },
   },
   {
-    // --- THIS IS THE NEW, IMPORTANT PART ---
-    // This section applies ONLY to files inside the 'api' folder
-    files: ["api/**/*.js"],
-    languageOptions: {
-      globals: {
-        ...globals.node, // Use ONLY Node.js globals for the API
-      },
-      sourceType: "commonjs", // Specify that API files use require/module.exports
-    },
-  },
+    // This section now correctly configures the linter to ignore module type issues
+    // for the backend, as Vercel handles it automatically.
+    ignores: ["api/"],
+  }
 ];

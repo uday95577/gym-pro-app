@@ -12,7 +12,9 @@ import BrowseGymsPage from './pages/BrowseGymsPage.jsx';
 import GymDetailPage from './pages/GymDetailPage.jsx';
 import AttendancePage from './pages/AttendancePage.jsx';
 import PricingPage from './pages/PricingPage.jsx';
-import Hard75Page from './pages/Hard75Page.jsx'; // Add this import
+import Hard75Page from './pages/Hard75Page.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import ManageSubscriptionPage from './pages/ManageSubscriptionPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 
@@ -75,10 +77,26 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/75-hard', // Add this new route
+        path: '/75-hard',
         element: (
           <ProtectedRoute>
             <Hard75Page />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/profile',
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/manage-subscription',
+        element: (
+          <ProtectedRoute>
+            <ManageSubscriptionPage />
           </ProtectedRoute>
         ),
       },
