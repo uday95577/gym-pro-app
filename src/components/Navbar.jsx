@@ -56,19 +56,25 @@ const Navbar = () => {
             {navLinks}
           </div>
 
-          {/* --- NEW Profile Dropdown (Desktop) --- */}
           <div className="hidden md:block">
             {currentUser ? (
-              <div className="relative" ref={profileMenuRef}>
-                <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="w-10 h-10 rounded-full overflow-hidden border-2 border-sky-400 focus:outline-none focus:ring-2 focus:ring-white">
+              <div className="relative flex items-center" ref={profileMenuRef}>
+                <span className="mr-4 text-white font-exo font-bold text-lg tracking-wide hidden lg:block" style={{textShadow: '0 1px 3px rgba(0,0,0,0.5)'}}>
+                  {currentUser.username || currentUser.email}
+                </span>
+                <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="w-12 h-12 rounded-full overflow-hidden border-2 border-sky-400 focus:outline-none focus:ring-2 focus:ring-white">
                   <img
                     className="w-full h-full object-cover"
-                    src={currentUser.photoURL || `https://i.pravatar.cc/150?u=${currentUser.uid}`}
+                    src={currentUser.photoURL || `https://api.dicebear.com/8.x/initials/svg?seed=${currentUser.username || currentUser.email}`}
                     alt="Profile"
                   />
                 </button>
                 {isProfileOpen && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
+                  <div className="origin-top-right absolute top-full right-0 mt-2 w-56 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
+                    <div className="px-4 py-2 border-b">
+                      <p className="text-sm text-gray-700">Signed in as</p>
+                      <p className="text-sm font-medium text-gray-900 truncate">{currentUser.email}</p>
+                    </div>
                     <Link to="/profile" onClick={() => setIsProfileOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Manage Profile</Link>
                     <Link to="/manage-subscription" onClick={() => setIsProfileOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Subscription</Link>
                     <button onClick={handleLogout} className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>

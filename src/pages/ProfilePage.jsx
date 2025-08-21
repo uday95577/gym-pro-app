@@ -7,6 +7,7 @@ import { updateProfile } from 'firebase/auth';
 const ProfilePage = () => {
   const { currentUser } = useAuth();
   const [name, setName] = useState(currentUser?.name || '');
+  const [username, setUsername] = useState(currentUser?.username || '');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,8 +30,9 @@ const ProfilePage = () => {
       const userDocRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userDocRef, {
         name: name,
+        username: username,
       });
-      await updateProfile(auth.currentUser, { displayName: name });
+      await updateProfile(auth.currentUser, { displayName: username });
 
       setMessage('Profile updated successfully!');
       setTimeout(() => window.location.reload(), 1500);
@@ -55,7 +57,6 @@ const ProfilePage = () => {
     formData.append('image', file);
 
     try {
-      // FIX: Use the full URL for local development, and a relative path for production
       const apiUrl = import.meta.env.DEV
         ? 'http://localhost:5173/api/uploadImage'
         : '/api/uploadImage';
@@ -95,12 +96,12 @@ const ProfilePage = () => {
       <div className="bg-white p-8 rounded-lg shadow-md text-gray-800">
         <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8">
           <img
-            src={currentUser?.photoURL || `https://api.dicebear.com/8.x/initials/svg?seed=${currentUser?.name || currentUser?.email}`}
+            src={currentUser?.photoURL || `https://api.dicebear.com/8.x/initials/svg?seed=${currentUser?.username || currentUser?.email}`}
             alt="Profile"
             className="w-24 h-24 rounded-full object-cover ring-4 ring-sky-300"
           />
           <div className="text-center sm:text-left">
-            <h2 className="text-2xl font-bold">{currentUser?.name || 'User'}</h2>
+            <h2 className="text-2xl font-bold">{currentUser?.username || 'User'}</h2>
             <p className="text-gray-500">{currentUser?.email}</p>
             <input type="file" ref={fileInputRef} onChange={handlePhotoUpload} className="hidden" accept="image/*" />
             <button onClick={handlePhotoChangeClick} disabled={uploadingPhoto} className="text-sm text-sky-600 hover:underline mt-1 disabled:text-gray-400">
@@ -112,6 +113,10 @@ const ProfilePage = () => {
           <div className="mb-4">
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
             <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full p-2 border border-gray-300 rounded-md text-gray-900" />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+            <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="mt-1 w-full p-2 border border-gray-300 rounded-md text-gray-900" />
           </div>
           <div className="mb-6">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address (Cannot be changed)</label>

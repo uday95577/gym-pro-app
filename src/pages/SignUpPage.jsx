@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'; // Import sendEmailVerification
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const SignUpPage = () => {
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState(''); // Add state for phone number
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState(''); // To show a success message
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -19,32 +20,26 @@ const SignUpPage = () => {
     setSuccessMessage('');
 
     try {
-      // 1. Create the user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // 2. Send the verification email
       await sendEmailVerification(user);
 
-      // 3. Create the user document in Firestore with all the new info
       const trialEndDate = new Date();
       trialEndDate.setDate(trialEndDate.getDate() + 3);
 
       await setDoc(doc(db, 'users', user.uid), {
-        name: name,
+        name: name, // Full Name
+        username: username, // Username
         email: user.email,
-        phone: phone, // Save the phone number
+        phone: phone,
         role: 'user',
         createdAt: serverTimestamp(),
         subscriptionStatus: 'trial',
         trialEndDate: trialEndDate,
       });
 
-      // Show a success message to the user
       setSuccessMessage("Account created successfully! Please check your email to verify your account before logging in.");
-      
-      // Optional: Redirect after a few seconds
-      // setTimeout(() => navigate('/login'), 5000);
 
     } catch (err) {
       console.error("Error signing up:", err.message);
@@ -57,7 +52,6 @@ const SignUpPage = () => {
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Create Your Account</h2>
         
-        {/* If a success message exists, show it and hide the form */}
         {successMessage ? (
           <div className="text-center">
             <p className="text-green-600 font-semibold">{successMessage}</p>
@@ -74,7 +68,11 @@ const SignUpPage = () => {
               <input id="name" type="text" placeholder="John Doe" className="w-full px-3 py-2 border border-gray-300 rounded-md" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
 
-            {/* New Phone Number Field */}
+            <div className="mb-4">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <input id="username" type="text" placeholder="e.g., johndoe99" className="w-full px-3 py-2 border border-gray-300 rounded-md" value={username} onChange={(e) => setUsername(e.target.value)} required />
+            </div>
+
             <div className="mb-4">
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
               <input id="phone" type="tel" placeholder="e.g., 9876543210" className="w-full px-3 py-2 border border-gray-300 rounded-md" value={phone} onChange={(e) => setPhone(e.target.value)} required />

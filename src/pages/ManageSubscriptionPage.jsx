@@ -1,14 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 
 const ManageSubscriptionPage = () => {
   const { currentUser } = useAuth();
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleCancel = () => {
-    // In a real app, this would trigger a backend process to cancel the Stripe/Razorpay subscription.
-    alert("Subscription cancellation functionality is not yet implemented.");
+  const handleCancel = async () => {
+    if (!currentUser) return;
+
+    if (window.confirm("Are you sure you want to cancel your subscription? This action cannot be undone.")) {
+      setLoading(true);
+      setMessage('');
+      setError('');
+      try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userDocRef, {
+          subscriptionStatus: 'canceled',
+        });
+        setMessage("Your subscription has been successfully canceled.");
+        // We can reload to refresh the user's context and show the updated status
+        setTimeout(() => window.location.reload(), 2000);
+      } catch (err) {
+        console.error("Error canceling subscription: ", err);
+        setError("Failed to cancel subscription. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
+
+  const isCancellable = currentUser?.subscriptionStatus === 'active';
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -18,7 +44,9 @@ const ManageSubscriptionPage = () => {
         <div className="bg-slate-100 p-4 rounded-lg">
           <p className="font-semibold text-lg capitalize">{currentUser?.role || 'User'} Plan</p>
           <p className="text-gray-600">
-            Status: <span className="font-semibold text-green-600 capitalize">{currentUser?.subscriptionStatus || 'N/A'}</span>
+            Status: <span className={`font-semibold capitalize ${
+              currentUser?.subscriptionStatus === 'active' || currentUser?.subscriptionStatus === 'trial' ? 'text-green-600' : 'text-red-600'
+            }`}>{currentUser?.subscriptionStatus || 'N/A'}</span>
           </p>
           {currentUser?.subscriptionStatus === 'trial' && (
             <p className="text-sm text-gray-500">
@@ -40,7 +68,7 @@ const ManageSubscriptionPage = () => {
         <div className="mt-8 border-t pt-6">
           <h3 className="text-xl font-semibold mb-2 text-red-600">Cancel Subscription</h3>
           <p className="text-gray-600 mb-4">
-            If you cancel your plan, you will lose access to all premium features at the end of your current billing cycle.
+            If you cancel, you will lose access to premium features at the end of your current billing cycle.
           </p>
           <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
             <p className="font-bold text-red-800">No Refund Policy:</p>
@@ -48,10 +76,13 @@ const ManageSubscriptionPage = () => {
           </div>
           <button
             onClick={handleCancel}
-            className="mt-4 bg-red-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-700 transition"
+            disabled={!isCancellable || loading}
+            className="mt-4 bg-red-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Cancel My Subscription
+            {loading ? 'Canceling...' : 'Cancel My Subscription'}
           </button>
+          {message && <p className="text-center text-sm text-green-600 mt-4">{message}</p>}
+          {error && <p className="text-center text-sm text-red-600 mt-4">{error}</p>}
         </div>
       </div>
     </div>

@@ -5,7 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      // Add this section
+      fontFamily: {
+        exo: ['"Exo 2"', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }
