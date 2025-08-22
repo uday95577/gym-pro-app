@@ -77,7 +77,7 @@ const PricingPage = () => {
       const order = await response.json();
 
       const options = {
-        key: "rzp_test_R7Ik8O5up9G2lX",
+        key: "rzp_live_R8FEPVa4tiF3Bt",
         amount: order.amount,
         currency: order.currency,
         name: "GymPro Subscription",
