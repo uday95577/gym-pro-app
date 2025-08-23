@@ -6,7 +6,8 @@ import AddClassForm from './AddClassForm';
 import ClassList from './ClassList';
 import JoinRequestsList from './JoinRequestsList';
 import ImageUploader from './ImageUploader';
-import FeeManager from './FeeManager'; // Import the new component
+import FeeManager from './FeeManager';
+import FeeDashboard from './FeeDashboard'; // Import the new component
 
 const OwnerDashboard = ({ gymData }) => {
   return (
@@ -19,6 +20,7 @@ const OwnerDashboard = ({ gymData }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column */}
         <div className="space-y-8">
+          <FeeDashboard gymId={gymData.id} /> {/* Add the new FeeDashboard here */}
           <JoinRequestsList gymId={gymData.id} />
           <AddMemberForm gymId={gymData.id} />
           <MemberList gymId={gymData.id} />
@@ -27,7 +29,7 @@ const OwnerDashboard = ({ gymData }) => {
         {/* Right Column */}
         <div className="space-y-8">
           <ImageUploader gymId={gymData.id} />
-          <FeeManager gymId={gymData.id} /> {/* Add the new component here */}
+          <FeeManager gymId={gymData.id} />
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-4 text-gray-800">Attendance Management</h3>
             <p className="text-gray-600 mb-4">View and manage monthly attendance for all your members.</p>

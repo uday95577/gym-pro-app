@@ -4,5 +4,11 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/sendFeeReminders",
+      "schedule": "0 9 * * *"
+    }
   ]
 }
