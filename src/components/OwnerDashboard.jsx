@@ -7,7 +7,7 @@ import ClassList from './ClassList';
 import JoinRequestsList from './JoinRequestsList';
 import ImageUploader from './ImageUploader';
 import FeeManager from './FeeManager';
-import FeeDashboard from './FeeDashboard'; // Import the new component
+import FeeDashboard from './FeeDashboard';
 
 const OwnerDashboard = ({ gymData }) => {
   return (
@@ -20,9 +20,10 @@ const OwnerDashboard = ({ gymData }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column */}
         <div className="space-y-8">
-          <FeeDashboard gymId={gymData.id} /> {/* Add the new FeeDashboard here */}
+          <FeeDashboard gymId={gymData.id} />
           <JoinRequestsList gymId={gymData.id} />
-          <AddMemberForm gymId={gymData.id} />
+          {/* Pass gymName to the AddMemberForm */}
+          <AddMemberForm gymId={gymData.id} gymName={gymData.gymName} />
           <MemberList gymId={gymData.id} />
         </div>
 
