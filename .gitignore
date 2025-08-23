@@ -25,3 +25,4 @@ dist-ssr
 
 # in .gitignore
 .env.local
+.vercel
