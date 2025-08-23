@@ -5,8 +5,9 @@ import twilio from 'twilio';
 
 // --- Secure Initialization ---
 // Initialize Firebase Admin SDK using Vercel environment variables
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+// Note: This check prevents re-initializing the app on hot-reloads in development
 if (!initializeApp.length) {
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
   initializeApp({
     credential: cert(serviceAccount),
   });
