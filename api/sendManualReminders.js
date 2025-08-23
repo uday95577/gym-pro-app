@@ -1,11 +1,15 @@
-import { initializeApp, cert } from 'firebase-admin/app';
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import twilio from 'twilio';
 
-// Securely initialize Firebase and Twilio
-if (!initializeApp.length) {
+// --- Secure Initialization (Corrected) ---
+// This is the standard way to initialize Firebase Admin in a serverless environment
+// to prevent it from being initialized multiple times.
+if (!getApps().length) {
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-  initializeApp({ credential: cert(serviceAccount) });
+  initializeApp({
+    credential: cert(serviceAccount),
+  });
 }
 const db = getFirestore();
 
@@ -42,7 +46,6 @@ export default async function handler(req, res) {
         const timeDiff = dueDate.getTime() - today.getTime();
         const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-        // Find members whose fee is overdue or due within the next 7 days
         if (daysDiff <= 7) {
           if (member.phone) {
             const messageBody = daysDiff < 0
@@ -63,7 +66,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: 'No members have upcoming or overdue fees.' });
     }
 
-    // Send all reminder messages
     for (const message of remindersToSend) {
       await twilioClient.messages.create(message);
       console.log(`Reminder sent to ${message.to}`);
