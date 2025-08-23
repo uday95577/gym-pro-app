@@ -7,26 +7,28 @@ import ClassList from './ClassList';
 import JoinRequestsList from './JoinRequestsList';
 import ImageUploader from './ImageUploader';
 import FeeManager from './FeeManager';
-import FeeDashboard from './FeeDashboard'; // Import the new component
+import FeeDashboard from './FeeDashboard';
 
 const OwnerDashboard = ({ gymData }) => {
   return (
     <div className="space-y-8 mt-8">
+      {/* Header Section */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-2 text-gray-800">Managing: {gymData.gymName}</h2>
         <p className="text-slate-600">{gymData.address}</p>
       </div>
 
+      {/* Main Dashboard Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column */}
+        {/* Left Column: Member and Fee Management */}
         <div className="space-y-8">
-          <FeeDashboard gymId={gymData.id} gymName={gymData.gymName} /> {/* Add the new FeeDashboard here */}
+          <FeeDashboard gymId={gymData.id} gymName={gymData.gymName} />
           <JoinRequestsList gymId={gymData.id} />
           <AddMemberForm gymId={gymData.id} gymName={gymData.gymName} />
           <MemberList gymId={gymData.id} />
         </div>
 
-        {/* Right Column */}
+        {/* Right Column: Gym and Class Management */}
         <div className="space-y-8">
           <ImageUploader gymId={gymData.id} />
           <FeeManager gymId={gymData.id} />
