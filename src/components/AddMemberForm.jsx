@@ -21,7 +21,7 @@ const AddMemberForm = ({ gymId, gymName }) => {
     const fullPhoneNumber = `+91${phone}`;
 
     try {
-      // 1. Add member to the database
+      // The form's only job is now to add the member to the database.
       const membersCollectionRef = collection(db, 'gyms', gymId, 'members');
       const joinDate = new Date();
       const feeDueDate = new Date(joinDate);
@@ -33,27 +33,19 @@ const AddMemberForm = ({ gymId, gymName }) => {
         phone: fullPhoneNumber,
         joinDate: serverTimestamp(),
         feeDueDate: feeDueDate,
+        gymName: gymName,
       });
       
-      setSuccess(`Successfully added ${name}! Sending welcome message...`);
+      setSuccess(`Successfully added ${name}!`);
       
-      // 2. Send the welcome message via our backend
-      await fetch('/api/sendWelcomeMessage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          memberName: name,
-          memberPhone: fullPhoneNumber,
-          gymName: gymName,
-        }),
-      });
+      // The fetch call to send the welcome message has been removed.
 
-      // 3. Reset the form
+      // Reset the form
       setName('');
       setEmail('');
       setPhone('');
     } catch (err) {
-      console.error("Error adding member or sending message: ", err);
+      console.error("Error adding member: ", err);
       setError('Failed to add member. Please try again.');
     }
   };

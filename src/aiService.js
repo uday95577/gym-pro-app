@@ -71,3 +71,24 @@ export const generateDietPlan = async ({ motive, mealType, budget, suggestions }
     return "Sorry, I couldn't generate a diet plan at the moment. Please try again later.";
   }
 };
+
+/**
+ * Generates a short, motivational fitness quote using the Gemini API.
+ * @returns {Promise<string>} A string containing the motivational quote.
+ */
+export const generateMotivationalQuote = async () => {
+  const prompt = `
+    Generate a short, powerful, and original motivational quote related to fitness, gym, and discipline.
+    The quote should be no more than two sentences long.
+    Do not include quotation marks in the response.
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text().trim(); // Use trim() to remove any extra whitespace
+  } catch (error) {
+    console.error("Error generating motivational quote:", error);
+    return "The only bad workout is the one that didn't happen. Go for it!"; // Fallback quote
+  }
+};
