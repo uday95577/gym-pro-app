@@ -3,8 +3,8 @@ import { generateMotivationalQuote } from '../aiService';
 
 const BroadcastManager = ({ gymId }) => {
   const [message, setMessage] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [feedback, setFeedback] = useState('');
 
   const handleGenerateQuote = async () => {
@@ -29,7 +29,7 @@ const BroadcastManager = ({ gymId }) => {
     setIsSending(true);
     setFeedback('');
     try {
-      const response = await fetch('/api/broadcastMessage', {
+      const response = await fetch('/api/broadcastToAll', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gymId, message }),
