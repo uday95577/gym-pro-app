@@ -8,7 +8,6 @@ import JoinRequestsList from './JoinRequestsList';
 import ImageUploader from './ImageUploader';
 import FeeManager from './FeeManager';
 import FeeDashboard from './FeeDashboard';
-import BroadcastManager from './BroadcastManager'; // Import the new component
 
 const OwnerDashboard = ({ gymData }) => {
   return (
@@ -21,7 +20,6 @@ const OwnerDashboard = ({ gymData }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column */}
         <div className="space-y-8">
-          <BroadcastManager gymId={gymData.id} /> {/* Add the new component here */}
           <FeeDashboard gymId={gymData.id} gymName={gymData.gymName} />
           <JoinRequestsList gymId={gymData.id} />
           <AddMemberForm gymId={gymData.id} gymName={gymData.gymName} />
