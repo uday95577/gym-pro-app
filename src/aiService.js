@@ -25,7 +25,7 @@ export const generateWorkoutPlan = async ({ motive, level, suggestions, latestBm
     Please make the plan very practical for someone in India. Use common exercise names.
     For example, instead of complex names, use terms like 'Chest Press (Bench Press)', 'Dand Baithak (Squats)', 'Pull-ups'.
     Structure the plan with clear headings for each day. For each exercise, specify sets and reps.
-    Format the response clearly using markdown. Use '#' for the main title, '##' for day titles, and '*' for list items.
+    Format the response clearly using markdown. Use '#' for the main title, '##' for day titles, and '*' for list items. The exercise name should be the first thing after the '*'.
   `;
 
   try {
@@ -55,7 +55,7 @@ export const generateDietPlan = async ({ motive, mealType, budget, suggestions }
     Structure it with three main meals and two snacks for each day. Use simple meal names like 'Nashta (Breakfast)', 'Dopeher ka Khana (Lunch)', and 'Raat ka Khana (Dinner)'.
     For each meal, suggest 2-3 common desi food options.
     Include a note about drinking plenty of water (paani).
-    Format the response clearly using markdown. Use '#' for the main title, '##' for day titles, '###' for meal times, and '*' for food items.
+    Format the response clearly using markdown. Use '#' for the main title, '##' for day titles, '###' for meal times, and '*' for food items. The food item name should be the first thing after the '*'.
   `;
 
   try {
@@ -87,5 +87,28 @@ export const generateMotivationalQuote = async () => {
   } catch (error) {
     console.error("Error generating motivational quote:", error);
     return "Jo workout aaj nahi kiya, woh kal bhi nahi hoga. Just do it!";
+  }
+};
+
+/**
+ * --- NEW FUNCTION ---
+ * Generates alternative exercises for a given exercise.
+ * @param {string} exerciseName - The name of the exercise to get variations for.
+ * @returns {Promise<string>} A string containing a list of alternative exercises.
+ */
+export const getExerciseVariations = async (exerciseName) => {
+  const prompt = `
+    Provide 2-3 alternative exercises or variations for the following exercise: "${exerciseName}".
+    List them in a simple, comma-separated format. For example: "Incline Dumbbell Press, Decline Push-ups, Cable Flys".
+    Do not add any extra text or headings.
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text().trim();
+  } catch (error) {
+    console.error("Error getting exercise variations:", error);
+    return "Could not find variations at this time.";
   }
 };
