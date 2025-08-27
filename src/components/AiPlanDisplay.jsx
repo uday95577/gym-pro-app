@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { getExerciseVariations } from '../aiService'; // Import the new AI function
 
 // A sub-component to render the structured content of each section
-const SectionContent = ({ content }) => {
+const SectionContent = ({ content, planType }) => {
+  const [variations, setVariations] = useState({});
+  const [loadingVariation, setLoadingVariation] = useState(null);
+
+  const handleGetVariations = async (exerciseName, index) => {
+    setLoadingVariation(index);
+    const result = await getExerciseVariations(exerciseName);
+    setVariations(prev => ({ ...prev, [index]: result }));
+    setLoadingVariation(null);
+  };
+
   const structuredContent = useMemo(() => {
     if (!content) return [];
     const lines = content.split('\n').filter(line => line.trim() !== '');
@@ -20,20 +31,41 @@ const SectionContent = ({ content }) => {
         flushList();
         elements.push(<h4 key={index} className="text-md font-bold text-gray-800 mt-4 mb-2">{line.replace('###', '').trim()}</h4>);
       } else if (line.trim().startsWith('*')) {
-        const foodItem = line.replace('*', '').trim();
+        const itemText = line.replace('*', '').trim();
+        const itemName = itemText.split('(')[0].trim(); // Get just the name (e.g., "Bench Press")
+
         const handleRecipeSearch = () => {
-          const query = encodeURIComponent(`${foodItem} recipe`);
+          const query = encodeURIComponent(`${itemName} recipe`);
           window.open(`https://www.google.com/search?q=${query}`, '_blank');
         };
+
         listItems.push(
-          <li key={index} className="text-sm text-gray-600 flex justify-between items-center bg-slate-50 p-2 rounded-md">
-            <span>{foodItem}</span>
-            <button 
-              onClick={handleRecipeSearch} 
-              className="text-xs bg-sky-100 text-sky-800 font-semibold px-2 py-1 rounded-md hover:bg-sky-200 transition-colors"
-            >
-              Recipe
-            </button>
+          <li key={index} className="text-sm text-gray-600 bg-slate-50 p-2 rounded-md">
+            <div className="flex justify-between items-center">
+              <span>{itemText}</span>
+              {planType === 'diet' && (
+                <button 
+                  onClick={handleRecipeSearch} 
+                  className="text-xs bg-sky-100 text-sky-800 font-semibold px-2 py-1 rounded-md hover:bg-sky-200 transition-colors"
+                >
+                  Recipe
+                </button>
+              )}
+              {planType === 'workout' && (
+                <button 
+                  onClick={() => handleGetVariations(itemName, index)} 
+                  disabled={loadingVariation === index}
+                  className="text-xs bg-purple-100 text-purple-800 font-semibold px-2 py-1 rounded-md hover:bg-purple-200 transition-colors disabled:bg-gray-200"
+                >
+                  {loadingVariation === index ? '...' : 'Variations'}
+                </button>
+              )}
+            </div>
+            {variations[index] && (
+              <div className="mt-2 text-xs text-purple-700 bg-purple-50 p-2 rounded">
+                <strong>Alternatives:</strong> {variations[index]}
+              </div>
+            )}
           </li>
         );
       } else {
@@ -44,13 +76,13 @@ const SectionContent = ({ content }) => {
 
     flushList();
     return elements;
-  }, [content]);
+  }, [content, planType, variations, loadingVariation]);
 
   return <div>{structuredContent}</div>;
 };
 
 
-const AiPlanDisplay = ({ planText }) => {
+const AiPlanDisplay = ({ planText, planType }) => { // Accept a new 'planType' prop
   const [title, setTitle] = useState('');
   const [sections, setSections] = useState([]);
   const [openIndex, setOpenIndex] = useState(0);
@@ -115,7 +147,7 @@ const AiPlanDisplay = ({ planText }) => {
           </button>
           <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === index ? 'max-h-[1000px]' : 'max-h-0'}`}>
             <div className="p-4 border-t border-gray-200">
-              <SectionContent content={section.content} />
+              <SectionContent content={section.content} planType={planType} />
             </div>
           </div>
         </div>

@@ -65,7 +65,7 @@ const ProgressPage = () => {
                 <textarea value={dietPrefs.suggestions} onChange={(e) => setDietPrefs({...dietPrefs, suggestions: e.target.value})} placeholder="Specific requests (e.g., 'no dairy')" className="w-full p-2 border border-gray-300 rounded-md text-gray-800" rows="2" />
               </div>
               <button onClick={handleGenerateDiet} disabled={isGeneratingDiet} className="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition disabled:bg-teal-300">{isGeneratingDiet ? 'Generating...' : 'Generate Diet Plan'}</button>
-              {dietPlan && <AiPlanDisplay planText={dietPlan} />}
+              {dietPlan && <AiPlanDisplay planText={dietPlan} planType="diet" />}
             </div>
 
             {/* AI Workout Coach Card */}
@@ -80,7 +80,7 @@ const ProgressPage = () => {
                 <textarea value={workoutPrefs.suggestions} onChange={(e) => setWorkoutPrefs({...workoutPrefs, suggestions: e.target.value})} placeholder="Specific requests (e.g., 'focus on legs')" className="w-full p-2 border border-gray-300 rounded-md text-gray-800" rows="2" />
               </div>
               <button onClick={handleGenerateWorkout} disabled={isGeneratingWorkout} className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition disabled:bg-purple-300">{isGeneratingWorkout ? 'Generating...' : 'Generate Workout Plan'}</button>
-              {workoutPlan && <AiPlanDisplay planText={workoutPlan} />}
+              {workoutPlan && <AiPlanDisplay planText={workoutPlan} planType="workout" />}
             </div>
           </div>
         
