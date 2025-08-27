@@ -7,15 +7,12 @@ import { auth } from '../firebase';
 // A custom dumbbell icon for the mobile menu
 const DumbbellIcon = () => (
   <svg className="w-8 h-8 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 6h-2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
-    <path d="M12 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
-    <path d="M6 6h-2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
-    <path d="M18 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
+    <path d="M12 6h-2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /><path d="M12 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" /><path d="M6 6h-2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /><path d="M18 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
   </svg>
 );
 
 
-const Navbar = () => {
+const Navbar = ({ onChatbotToggle }) => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -47,23 +44,18 @@ const Navbar = () => {
     }
   };
 
-  // Reusable nav links with animated underline for desktop
   const navLinks = (
     <>
-      <Link to="/" onClick={() => setIsSidebarOpen(false)} className="relative block py-2 px-3 rounded-md text-base font-medium text-gray-300 hover:text-white transition-colors group">
-        Home
-        <span className="absolute bottom-0 left-0 block w-full h-0.5 bg-sky-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out"></span>
-      </Link>
-      <Link to="/browse-gyms" onClick={() => setIsSidebarOpen(false)} className="relative block py-2 px-3 rounded-md text-base font-medium text-gray-300 hover:text-white transition-colors group">Find a Gym<span className="absolute bottom-0 left-0 block w-full h-0.5 bg-sky-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out"></span></Link>
-      <Link to="/progress" onClick={() => setIsSidebarOpen(false)} className="relative block py-2 px-3 rounded-md text-base font-medium text-gray-300 hover:text-white transition-colors group">My Progress<span className="absolute bottom-0 left-0 block w-full h-0.5 bg-sky-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out"></span></Link>
-      <Link to="/75-hard" onClick={() => setIsSidebarOpen(false)} className="relative block py-2 px-3 rounded-md text-base font-medium text-gray-300 hover:text-white transition-colors group">75 Hard<span className="absolute bottom-0 left-0 block w-full h-0.5 bg-sky-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out"></span></Link>
-      <Link to="/gym-owner" onClick={() => setIsSidebarOpen(false)} className="relative block py-2 px-3 rounded-md text-base font-medium text-gray-300 hover:text-white transition-colors group">For Gym Owners<span className="absolute bottom-0 left-0 block w-full h-0.5 bg-sky-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out"></span></Link>
+      <Link to="/" onClick={() => setIsSidebarOpen(false)} className="block py-2 px-4 rounded-md text-lg font-medium text-gray-300 hover:text-white hover:bg-slate-700">Home</Link>
+      <Link to="/browse-gyms" onClick={() => setIsSidebarOpen(false)} className="block py-2 px-4 rounded-md text-lg font-medium text-gray-300 hover:text-white hover:bg-slate-700">Find a Gym</Link>
+      <Link to="/progress" onClick={() => setIsSidebarOpen(false)} className="block py-2 px-4 rounded-md text-lg font-medium text-gray-300 hover:text-white hover:bg-slate-700">My Progress</Link>
+      <Link to="/75-hard" onClick={() => setIsSidebarOpen(false)} className="block py-2 px-4 rounded-md text-lg font-medium text-gray-300 hover:text-white hover:bg-slate-700">75 Hard</Link>
+      <Link to="/gym-owner" onClick={() => setIsSidebarOpen(false)} className="block py-2 px-4 rounded-md text-lg font-medium text-gray-300 hover:text-white hover:bg-slate-700">For Gym Owners</Link>
     </>
   );
 
   return (
     <>
-      {/* Main Navbar */}
       <nav className="bg-gradient-to-r from-slate-800 to-slate-900 shadow-lg sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
@@ -71,12 +63,10 @@ const Navbar = () => {
               <Link to="/" className="font-bold text-2xl text-sky-400 font-exo" style={{textShadow: '0 1px 2px rgba(0,0,0,0.5)'}}>GymPro</Link>
             </div>
 
-            {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-1">
               {navLinks}
             </div>
 
-            {/* Desktop Profile Button */}
             <div className="hidden md:flex items-center">
               {currentUser ? (
                 <div className="relative" ref={profileMenuRef}>
@@ -98,7 +88,6 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center">
               <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
                 <DumbbellIcon />
@@ -108,17 +97,24 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Sidebar */}
       <div className={`fixed inset-0 z-40 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:hidden`}>
         <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsSidebarOpen(false)}></div>
         <div className="relative w-64 h-full bg-slate-800 p-4 space-y-4">
           <h2 className="text-white font-bold text-2xl font-exo">Menu</h2>
           <div className="border-t border-slate-700"></div>
           {navLinks}
+          <button 
+            onClick={() => {
+              setIsSidebarOpen(false);
+              onChatbotToggle();
+            }} 
+            className="w-full text-left block py-2 px-4 rounded-md text-lg font-medium text-gray-300 hover:text-white hover:bg-slate-700"
+          >
+            AI Chatbot
+          </button>
         </div>
       </div>
 
-      {/* Floating Profile Button (Mobile) */}
       <div className="md:hidden fixed bottom-6 right-6 z-40" ref={mobileProfileMenuRef}>
         {currentUser ? (
           <div className="relative">
@@ -139,4 +135,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-      

@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getChatbotResponse } from '../aiService';
 
-const Chatbot = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const Chatbot = ({ isOpen, onClose }) => { // Now controlled by props
   const [messages, setMessages] = useState([
     { role: 'model', parts: [{ text: "Hello! I'm your GymPro AI assistant. How can I help you with your fitness questions today?" }] }
   ]);
@@ -46,11 +45,11 @@ const Chatbot = () => {
 
   return (
     <>
-      {/* Chat Window - Now with responsive classes */}
-      <div className={`fixed bottom-20 sm:bottom-24 right-4 left-4 sm:left-auto sm:right-6 sm:w-80 h-[70vh] sm:h-[28rem] bg-white rounded-xl shadow-2xl flex flex-col transform transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
-        <div className="bg-sky-600 text-white p-3 rounded-t-xl flex justify-between items-center">
+      {/* Chat Window */}
+      <div className={`fixed bottom-0 right-0 left-0 top-0 sm:top-auto sm:bottom-24 sm:right-6 sm:left-auto sm:w-80 sm:h-[28rem] bg-white rounded-none sm:rounded-xl shadow-2xl flex flex-col transform transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full sm:translate-y-4 pointer-events-none'}`}>
+        <div className="bg-sky-600 text-white p-3 rounded-t-none sm:rounded-t-xl flex justify-between items-center">
           <h3 className="font-bold text-center flex-grow">GymPro AI Assistant</h3>
-          <button onClick={() => setIsOpen(false)} className="text-white hover:bg-sky-700 rounded-full p-1">
+          <button onClick={onClose} className="text-white hover:bg-sky-700 rounded-full p-1">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
@@ -85,15 +84,7 @@ const Chatbot = () => {
         </form>
       </div>
 
-      {/* Floating Chat Button - Now with responsive classes */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-sky-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-      </button>
+      {/* Floating Chat Button has been removed */}
     </>
   );
 };
