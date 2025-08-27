@@ -91,7 +91,6 @@ export const generateMotivationalQuote = async () => {
 };
 
 /**
- * --- NEW FUNCTION ---
  * Generates alternative exercises for a given exercise.
  * @param {string} exerciseName - The name of the exercise to get variations for.
  * @returns {Promise<string>} A string containing a list of alternative exercises.
@@ -110,5 +109,38 @@ export const getExerciseVariations = async (exerciseName) => {
   } catch (error) {
     console.error("Error getting exercise variations:", error);
     return "Could not find variations at this time.";
+  }
+};
+
+/**
+ * --- NEW FUNCTION ---
+ * Gets a response from the AI chatbot.
+ * @param {string} userQuery - The user's question.
+ * @param {Array} history - The previous conversation history.
+ * @returns {Promise<string>} The chatbot's response.
+ */
+export const getChatbotResponse = async (userQuery, history) => {
+  const chat = model.startChat({
+    history: history,
+    generationConfig: {
+      maxOutputTokens: 200,
+    },
+  });
+
+  const prompt = `
+    You are a friendly and knowledgeable fitness and nutrition chatbot for an app called GymPro.
+    Your goal is to answer the user's questions in a clear, concise, and encouraging way.
+    You can answer in any language the user asks in.
+    Keep your answers relatively short.
+    User's question: "${userQuery}"
+  `;
+
+  try {
+    const result = await chat.sendMessage(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error("Error getting chatbot response:", error);
+    return "I'm sorry, I'm having a little trouble right now. Please try again in a moment.";
   }
 };
